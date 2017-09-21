@@ -14,10 +14,8 @@ public class GUI extends javax.swing.JFrame{
     private JLabel areaLable;
     private JComboBox areaDropDown;
     private JLabel timeLable;
-    private JLabel mintempLable;
-    private JLabel maxtempLable;
-    private JLabel currentMinTempLable;
-    private JLabel currentMaxTempLable;
+    private JLabel tempLable;
+    private JLabel currentTempLable;
     private JSpinner timeSpinner;
     private JButton getWeatherButton;
 
@@ -36,12 +34,11 @@ private void initCompontents(){
     areaDropDown = new JComboBox(cities);
 
     timeLable = new JLabel("Timme: ");
-    mintempLable = new JLabel("Minsta temperatur: ");
-    currentMinTempLable = new JLabel("");
-    maxtempLable = new JLabel("Högsta temperatur: ");
-    currentMaxTempLable = new JLabel("");
+    tempLable = new JLabel("Temperatur: ");
+    currentTempLable = new JLabel("");
 
-    SpinnerModel model = new SpinnerNumberModel(0, 0, 23, 1);
+
+    SpinnerModel model = new SpinnerNumberModel(1, 1, 24, 1);
     timeSpinner = new JSpinner(model);
     JComponent editor = new JSpinner.NumberEditor(timeSpinner, "00");
     timeSpinner.setEditor(editor);
@@ -74,16 +71,11 @@ private void initCompontents(){
         panel.add(timeSpinner, gbc);
 
         setGridPos(0,2);
-        panel.add(mintempLable, gbc);
+        panel.add(tempLable, gbc);
 
         setGridPos(1,2);
-        panel.add(currentMinTempLable, gbc);
+        panel.add(currentTempLable, gbc);
 
-        setGridPos(0,3);
-        panel.add(maxtempLable, gbc);
-
-        setGridPos(1,3);
-        panel.add(currentMaxTempLable, gbc);
 
         setGridPos(0,4);
         gbc.gridwidth = 2;
@@ -100,9 +92,8 @@ private void initCompontents(){
         control = c;
     }
 
-    public void setTempLable(String minTemp, String maxTemp){
-        currentMinTempLable.setText(minTemp);
-        currentMaxTempLable.setText(maxTemp);
+    public void setTempLable(String temp){
+        currentTempLable.setText(temp+"°C");
         panel.repaint();
     }
 

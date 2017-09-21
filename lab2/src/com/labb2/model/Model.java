@@ -12,6 +12,10 @@ import org.xml.sax.SAXException;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class Model {
     private Control control;
@@ -28,7 +32,7 @@ public class Model {
         String currentLine;
         StringBuilder yr = new StringBuilder();
         while ((currentLine = in.readLine()) != null){
-            //System.out.println(currentLine);
+            System.out.println(currentLine);
             yr.append(currentLine);
         }
 
@@ -36,19 +40,28 @@ public class Model {
         DOMParser domParser = new DOMParser();
         domParser.parse(inputSource);
         Document document = domParser.getDocument();
-        NodeList nodeList = document.getElementsByTagName("minTemperature");
 
-        int index = convertHourToIndex(h);
+
+
+
+        DateFormat hourFormat = new SimpleDateFormat("HH");
+        Date date = new Date();
+        int currentHour = Integer.parseInt(hourFormat.format(date));
+
+        int index;
+        if ((h+1) >= currentHour){
+            index = (h+1)-currentHour;
+        }else{
+            index = (h+25)-currentHour;
+        }
+
+        System.out.println(index);
+        NodeList nodeList = document.getElementsByTagName("temperature");
         Node node = nodeList.item(index);
         NamedNodeMap namedNodeMap = node.getAttributes();
-        String minTemperature = namedNodeMap.getNamedItem("value").getFirstChild().getTextContent();
+        String temperature = namedNodeMap.getNamedItem("value").getFirstChild().getTextContent();
 
-        nodeList = document.getElementsByTagName("maxTemperature");
-        node = nodeList.item(index);
-        namedNodeMap = node.getAttributes();
-        String maxTemperature = namedNodeMap.getNamedItem("value").getFirstChild().getTextContent();
-
-        control.setWeatherLabel(minTemperature, maxTemperature);
+        control.setWeatherLabel(temperature);
 
         in.close();
     }
@@ -92,13 +105,5 @@ public class Model {
         return latandlon;
     }
 
-    private int convertHourToIndex(int h){
-        if (h == 0) h=24;
 
-        if(9 <= h && h <=24){
-            return(h-9);
-        }else{
-            return (h+15);
-        }
-    }
 }

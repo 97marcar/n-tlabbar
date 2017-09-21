@@ -24,7 +24,7 @@ public class Control {
         }
     }
 
-    public void setWeatherLabel(String minTemp, String maxTemp){
-        gui.setTempLable(minTemp, maxTemp);
+    public void setWeatherLabel(String temp){
+        gui.setTempLable(temp);
     }
 }
