@@ -9,4 +9,7 @@
    	<locality name="Stockholm">
         <location altitude="20" latitude="59.3250" longitude="18.0707"/>
    	</locality>
+	<locality name="Lulea">
+        <location altitude="20" latitude="65.58415" longitude="22.15465"/>
+   	</locality>
 </places>
