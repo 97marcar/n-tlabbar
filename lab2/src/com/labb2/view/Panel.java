@@ -26,12 +26,5 @@ public class Panel extends JPanel{
     }
 
 
-    /**
-     * Paints the components on the screen
-     * @param g Graphics
-     */
-    public void paintComponent(Graphics g){
-        super.paintComponent(g);
 
-    }
 }
