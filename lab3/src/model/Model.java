@@ -1,17 +1,18 @@
 package model;
 
-
-
 import java.io.*;
-import java.net.Socket;
+import java.net.*;
 import java.util.Observable;
 
 
 public class Model extends Observable {
+    private MulticastSocket multicastSocket;
+    private int port = 6066;
+    private String group = "239.146.121.244";
+
     public Model(){
 
     }
-
     public void connect(){
         String serverName = "localhost";
         int port = 6066;
@@ -26,12 +27,55 @@ public class Model extends Observable {
             out.writeUTF("Hello from " + client.getLocalSocketAddress());
             InputStream inFromServer = client.getInputStream();
             DataInputStream in = new DataInputStream(inFromServer);
-
             System.out.println("Server says " + in.read());
-
-        }catch(IOException e) {
+        }catch (IOException e){
             e.printStackTrace();
         }
+    }
+
+
+    public void receiver() throws IOException{
+        while (true){
+            this.port = port;
+            InetAddress groupAdress = InetAddress.getByName(group);
+            multicastSocket = new MulticastSocket(port);
+            System.out.println("Multicast Reciver running at:" + multicastSocket.getLocalSocketAddress());
+            multicastSocket.joinGroup(groupAdress);
+
+            DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
+            System.out.println("Waiting for a  multicast message...");
+            multicastSocket.receive(packet);
+            String msg = new String(packet.getData(), packet.getOffset(),
+                    packet.getLength());
+            System.out.println("[Multicast  Receiver] Received:" + msg);
+        }
+    }
+
+    public void send(){
+        String group = "239.255.255.250";
+        int port = 1900;
+
+        try {
+            DatagramSocket datagramSocket = new DatagramSocket();
+            InetAddress groupAdress = InetAddress.getByName(group);
+            byte[] msg = "Hello".getBytes();
+            DatagramPacket packet = new DatagramPacket(msg, msg.length);
+            packet.setAddress(groupAdress);
+            packet.setPort(port);
+            datagramSocket.send(packet);
+
+            System.out.println("Sent a  multicast message.");
+            System.out.println("Exiting application");
+
+            datagramSocket.close();
+        } catch (SocketException e) {
+            e.printStackTrace();
+        } catch (UnknownHostException e){
+            e.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+
     }
 
     public void move(int x, int y){
