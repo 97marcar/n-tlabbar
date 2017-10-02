@@ -19,6 +19,9 @@ public class Control extends Observable implements  Observer{
         model.addObserver(this);
         model.connect();
     }
+    public void restart(){
+        model.restart();
+    }
     public String locationStatus(int x, int y){
         return("EMPTY");
     }

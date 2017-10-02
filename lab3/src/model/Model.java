@@ -9,6 +9,11 @@ public class Model extends Observable {
     private MulticastSocket multicastSocket;
     private int port = 6066;
     private String group = "239.146.121.244";
+    Socket client;
+    OutputStream outToServer;
+    DataOutputStream out;
+    InputStream inFromServer;
+    DataInputStream in;
 
     public Model(){
 
@@ -18,16 +23,19 @@ public class Model extends Observable {
         int port = 6066;
         try {
             System.out.println("Connecting to " + serverName + " on port " + port);
-            Socket client = new Socket(serverName, port);
+            client = new Socket(serverName, port);
 
             System.out.println("Just connected to " + client.getRemoteSocketAddress());
-            OutputStream outToServer = client.getOutputStream();
-            DataOutputStream out = new DataOutputStream(outToServer);
+            outToServer = client.getOutputStream();
+            out = new DataOutputStream(outToServer);
+            System.out.println("What up");
+            out.writeUTF("CONNECT");
 
-            out.writeUTF("Hello from " + client.getLocalSocketAddress());
-            InputStream inFromServer = client.getInputStream();
-            DataInputStream in = new DataInputStream(inFromServer);
+            //out.writeUTF("Hello from " + client.getLocalSocketAddress());
+            inFromServer = client.getInputStream();
+            in = new DataInputStream(inFromServer);
             System.out.println("Server says " + in.read());
+
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -73,6 +81,16 @@ public class Model extends Observable {
         } catch (UnknownHostException e){
             e.printStackTrace();
         } catch (IOException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    public void restart(){
+        try {
+            System.out.println("XDKEK");
+            out.writeUTF("RESTART");
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

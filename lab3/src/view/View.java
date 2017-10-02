@@ -27,6 +27,7 @@ public class View extends JFrame implements Observer{
         restartButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Restart");
+                control.restart();
             }
         });
         disconnectButton = new JButton("Disconnect");

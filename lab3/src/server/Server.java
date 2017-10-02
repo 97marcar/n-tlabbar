@@ -2,17 +2,32 @@ package server;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 
 public class Server extends Thread{
     private ServerSocket serverSocket;
+    private Socket server;
     private MulticastSocket multicastSocket;
-    private int id = 0;
+    private int gameID = -1;
+    private int playerID = -1;
     private int port;
     private String group = "239.146.121.244";
+    private ArrayList<Game> games = new ArrayList<Game>();
 
     public Server(int port) throws IOException{
         this.port = port;
         serverSocket = new ServerSocket(port);
+    }
+
+    private int generateGameID(){
+        gameID++;
+        return (gameID);
+
+    }
+
+    private int generatePlayerID(){
+        playerID++;
+        return(playerID);
     }
 
     public void receiver() throws IOException{
@@ -37,13 +52,14 @@ public class Server extends Thread{
         while(true){
             try {
                 System.out.println("Waiting for client on port " + serverSocket.getLocalPort() + "...");
-                Socket server = serverSocket.accept();
+                server = serverSocket.accept();
                 System.out.println("Just connected to " + server.getRemoteSocketAddress());
                 DataInputStream in = new DataInputStream(server.getInputStream());
+                System.out.println("nåho");
+                ListenThread listenThread = new ListenThread(in);
+                listenThread.start();
+                System.out.println("jajajajaj");
 
-                System.out.println(in.readUTF());
-                DataOutputStream out = new DataOutputStream(server.getOutputStream());
-                out.write(generateID());
 
 
             } catch (IOException e) {
@@ -51,20 +67,84 @@ public class Server extends Thread{
             }
         }
     }
+    private class ListenThread extends Thread{
+        private DataInputStream in;
+        public ListenThread(DataInputStream in){
+            this.in = in;
+        }
+        public void run(){
+            try {
+                System.out.println("HEJSANHOPSANLIELEL");
+                DataOutputStream out = new DataOutputStream(server.getOutputStream());
+                String message = in.readUTF();
+                while(!(message.equals("Disconnect"))){
+
+                    System.out.println(message);
 
 
-    private int generateID(){
-        id++;
-        String temp = Integer.toString(id);
-        if(id % 2 != 0){
-            temp = temp +"1";
-        }else{
-            temp = temp +"2";
+                    if(message.equals("CONNECT")){
+                        System.out.println("777");
+                        int yourID = generatePlayerID();
+                        int yourGameID = -1;
+                        boolean avaliableGame = false;
+
+                        System.out.println("AAAAA");
+                        for(int i = 0; i<games.size(); i++){
+                            if(!(games.get(i).isPlayer2())){
+                                avaliableGame = true;
+                                games.get(i).setPlayer2(yourID);
+                                yourGameID = games.get(i).getGameID();
+                            }
+                        }
+
+                        if(!(avaliableGame)){
+                            yourGameID = generateGameID();
+                            Game g = new Game(yourGameID, yourID);
+                            games.add(g);
+                        }
+                        out.write(yourGameID);
+
+                    }
+                    System.out.println("YES");
+                    out.writeUTF("HELLo");
+                    in.close();
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    private class Game{
+        private int gameID;
+        private int player1;
+        private int player2 = 0;
+
+        public Game(int gameID, int player1){
+            System.out.println("SPEL SKAPAT");
+            this.gameID = gameID;
+            this.player1 = player1;
         }
 
-        return (Integer.parseInt(temp));
+        public void setPlayer2(int player2){
+            this.player2 = player2;
+        }
 
+        public boolean isPlayer2(){
+            if(player2 == 0){
+                return false;
+            }else{
+                return true;
+            }
+        }
+        public int getGameID(){
+            return gameID;
+        }
     }
+
+
 
     public static void main(String[] args){
         int port = 6066;
