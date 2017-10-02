@@ -22,6 +22,14 @@ public class Control extends Observable implements  Observer{
     public void restart(){
         model.restart();
     }
+
+    public void disconnect(){
+        model.disconnect();
+    }
+
+    public void move(int x, int y){
+        model.move(x, y);
+    }
     public String locationStatus(int x, int y){
         return("EMPTY");
     }

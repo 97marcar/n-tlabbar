@@ -30,6 +30,10 @@ public class Panel extends JPanel implements Observer{
         c.addObserver(this);
     }
 
+    public int[] getGridPosition(int x, int y){
+        return new int[] {x/SQUARE_SIZE, y/SQUARE_SIZE};
+    }
+
     public void update(Observable o, Object arg) {
         this.repaint();
     }

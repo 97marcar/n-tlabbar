@@ -4,8 +4,7 @@ import control.Control;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -34,6 +33,16 @@ public class View extends JFrame implements Observer{
         disconnectButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Disconnect");
+                control.disconnect();
+            }
+        });
+
+        panel.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                int mouseXpos = e.getX();
+                int mouseYpos = e.getY();
+                int[]pos = panel.getGridPosition(mouseXpos,mouseYpos);
+                control.move(pos[0], pos[1]);
             }
         });
 
@@ -41,6 +50,11 @@ public class View extends JFrame implements Observer{
 
         setLayout();
         this.setResizable(false);
+        this.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                control.disconnect();
+            }
+        });
         this.setDefaultCloseOperation(this.EXIT_ON_CLOSE);
         this.pack();
         this.setVisible(true);

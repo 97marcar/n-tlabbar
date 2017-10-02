@@ -55,94 +55,68 @@ public class Server extends Thread{
                 server = serverSocket.accept();
                 System.out.println("Just connected to " + server.getRemoteSocketAddress());
                 DataInputStream in = new DataInputStream(server.getInputStream());
-                System.out.println("nåho");
                 ListenThread listenThread = new ListenThread(in);
                 listenThread.start();
-                System.out.println("jajajajaj");
-
-
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
+
     private class ListenThread extends Thread{
         private DataInputStream in;
         public ListenThread(DataInputStream in){
             this.in = in;
         }
         public void run(){
-            try {
-                System.out.println("HEJSANHOPSANLIELEL");
-                DataOutputStream out = new DataOutputStream(server.getOutputStream());
-                String message = in.readUTF();
-                while(!(message.equals("Disconnect"))){
-
+            while(true){
+                try {
+                    DataOutputStream out = new DataOutputStream(server.getOutputStream());
+                    String message = in.readUTF();
                     System.out.println(message);
-
-
                     if(message.equals("CONNECT")){
-                        System.out.println("777");
+                        System.out.println("Connected");
                         int yourID = generatePlayerID();
                         int yourGameID = -1;
-                        boolean avaliableGame = false;
-
-                        System.out.println("AAAAA");
+                        boolean availableGame = false;
                         for(int i = 0; i<games.size(); i++){
-                            if(!(games.get(i).isPlayer2())){
-                                avaliableGame = true;
-                                games.get(i).setPlayer2(yourID);
+                            if(!(games.get(i).avaliableSpot())){
+                                availableGame = true;
+                                games.get(i).setPlayer(yourID);
                                 yourGameID = games.get(i).getGameID();
                             }
                         }
 
-                        if(!(avaliableGame)){
+                        if(!(availableGame)){
                             yourGameID = generateGameID();
                             Game g = new Game(yourGameID, yourID);
                             games.add(g);
                         }
                         out.write(yourGameID);
+                        out.write(yourID);
 
+                    }else if(message.equals("DISCONNECT")){
+                        in.close();
+                        break;
+                    }else if(message.equals("MOVE")){
+                        int x = in.read();
+                        int y = in.read();
+
+
+                    }else{
+                        System.out.println("OTHER");
                     }
-                    System.out.println("YES");
-                    out.writeUTF("HELLo");
-                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+
 
         }
     }
 
-    private class Game{
-        private int gameID;
-        private int player1;
-        private int player2 = 0;
 
-        public Game(int gameID, int player1){
-            System.out.println("SPEL SKAPAT");
-            this.gameID = gameID;
-            this.player1 = player1;
-        }
-
-        public void setPlayer2(int player2){
-            this.player2 = player2;
-        }
-
-        public boolean isPlayer2(){
-            if(player2 == 0){
-                return false;
-            }else{
-                return true;
-            }
-        }
-        public int getGameID(){
-            return gameID;
-        }
-    }
 
 
 

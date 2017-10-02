@@ -9,14 +9,15 @@ public class Model extends Observable {
     private MulticastSocket multicastSocket;
     private int port = 6066;
     private String group = "239.146.121.244";
-    Socket client;
-    OutputStream outToServer;
-    DataOutputStream out;
-    InputStream inFromServer;
-    DataInputStream in;
+    private Socket client;
+    private OutputStream outToServer;
+    private DataOutputStream out;
+    private InputStream inFromServer;
+    private DataInputStream in;
+    private Receiver receiver;
 
     public Model(){
-
+        receiver = new Receiver();
     }
     public void connect(){
         String serverName = "localhost";
@@ -28,13 +29,14 @@ public class Model extends Observable {
             System.out.println("Just connected to " + client.getRemoteSocketAddress());
             outToServer = client.getOutputStream();
             out = new DataOutputStream(outToServer);
-            System.out.println("What up");
             out.writeUTF("CONNECT");
+            out.flush();
 
             //out.writeUTF("Hello from " + client.getLocalSocketAddress());
             inFromServer = client.getInputStream();
             in = new DataInputStream(inFromServer);
-            System.out.println("Server says " + in.read());
+            System.out.println("Your Game ID: " + in.read());
+            System.out.println("Your Player ID:  " + in.read());
 
         }catch (IOException e){
             e.printStackTrace();
@@ -42,20 +44,26 @@ public class Model extends Observable {
     }
 
 
-    public void receiver() throws IOException{
-        while (true){
-            this.port = port;
-            InetAddress groupAdress = InetAddress.getByName(group);
-            multicastSocket = new MulticastSocket(port);
-            System.out.println("Multicast Reciver running at:" + multicastSocket.getLocalSocketAddress());
-            multicastSocket.joinGroup(groupAdress);
+    private class Receiver{
+        Receiver (){
+            while(true){
+                try{
+                    InetAddress groupAdress = InetAddress.getByName(group);
+                    multicastSocket = new MulticastSocket(port);
+                    System.out.println("Multicast Reciver running at:" + multicastSocket.getLocalSocketAddress());
+                    multicastSocket.joinGroup(groupAdress);
 
-            DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
-            System.out.println("Waiting for a  multicast message...");
-            multicastSocket.receive(packet);
-            String msg = new String(packet.getData(), packet.getOffset(),
-                    packet.getLength());
-            System.out.println("[Multicast  Receiver] Received:" + msg);
+                    DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
+                    System.out.println("Waiting for a  multicast message...");
+                    multicastSocket.receive(packet);
+                    String msg = new String(packet.getData(), packet.getOffset(),
+                            packet.getLength());
+                    System.out.println("[Multicast  Receiver] Received:" + msg);
+                } catch (IOException e){
+                    e.printStackTrace();
+                }
+
+            }
         }
     }
 
@@ -76,10 +84,6 @@ public class Model extends Observable {
             System.out.println("Exiting application");
 
             datagramSocket.close();
-        } catch (SocketException e) {
-            e.printStackTrace();
-        } catch (UnknownHostException e){
-            e.printStackTrace();
         } catch (IOException e){
             e.printStackTrace();
         }
@@ -88,15 +92,37 @@ public class Model extends Observable {
 
     public void restart(){
         try {
-            System.out.println("XDKEK");
             out.writeUTF("RESTART");
-        } catch (IOException e) {
+            out.flush();
+        } catch (SocketException e){
+            connect();
+        }catch (IOException e) {
             e.printStackTrace();
         }
 
     }
 
+    public void disconnect(){
+        try {
+            out.writeUTF("DISCONNECT");
+            out.flush();
+            out.close();
+        } catch (SocketException e){
+            System.out.println("You are not connected to the Server.");
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void move(int x, int y){
+        try {
+            out.writeUTF("MOVE");
+            out.write(x);
+            out.write(y);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         //Send request to make a move at x,y
     }
 
