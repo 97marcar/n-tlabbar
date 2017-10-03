@@ -8,7 +8,7 @@ import java.util.Observable;
 public class Model extends Observable {
     private MulticastSocket multicastSocket;
     private int port = 6066;
-    private String group = "239.146.121.244";
+    private String group = "239.255.255.250";
     private Socket client;
     private OutputStream outToServer;
     private DataOutputStream out;
@@ -17,7 +17,7 @@ public class Model extends Observable {
     private Receiver receiver;
 
     public Model(){
-        receiver = new Receiver();
+
     }
     public void connect(){
         String serverName = "localhost";
@@ -37,6 +37,7 @@ public class Model extends Observable {
             in = new DataInputStream(inFromServer);
             System.out.println("Your Game ID: " + in.read());
             System.out.println("Your Player ID:  " + in.read());
+            receiver = new Receiver();
 
         }catch (IOException e){
             e.printStackTrace();
@@ -49,7 +50,7 @@ public class Model extends Observable {
             while(true){
                 try{
                     InetAddress groupAdress = InetAddress.getByName(group);
-                    multicastSocket = new MulticastSocket(port);
+                    multicastSocket = new MulticastSocket(1900);
                     System.out.println("Multicast Reciver running at:" + multicastSocket.getLocalSocketAddress());
                     multicastSocket.joinGroup(groupAdress);
 

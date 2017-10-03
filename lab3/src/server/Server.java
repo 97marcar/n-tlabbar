@@ -102,6 +102,9 @@ public class Server extends Thread{
                     }else if(message.equals("MOVE")){
                         int x = in.read();
                         int y = in.read();
+                        System.out.println(x);
+                        System.out.println(y);
+                        send(x);
 
 
                     }else{
@@ -114,6 +117,27 @@ public class Server extends Thread{
 
 
         }
+    }
+    public void send(int x){
+        String group = "239.255.255.250";
+        int port = 1900;
+
+        try {
+            DatagramSocket datagramSocket = new DatagramSocket();
+            InetAddress groupAdress = InetAddress.getByName(group);
+            byte[] msg = Integer.toString(x).getBytes();
+            DatagramPacket packet = new DatagramPacket(msg, msg.length);
+            packet.setAddress(groupAdress);
+            packet.setPort(port);
+            datagramSocket.send(packet);
+
+            System.out.println("Sent a  multicast message.");
+
+            datagramSocket.close();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+
     }
 
 
