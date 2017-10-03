@@ -8,16 +8,20 @@ import java.util.Observable;
 public class Model extends Observable {
     private MulticastSocket multicastSocket;
     private int port = 6066;
-    private String group = "239.255.255.250";
+    private String group = "229.255.255.250";
     private Socket client;
     private OutputStream outToServer;
     private DataOutputStream out;
     private InputStream inFromServer;
     private DataInputStream in;
     private Receiver receiver;
+    private int myGameID;
+    private int myPlayerID;
+    public String[][] grid = new String[3][3];
+    private int gameOver;
 
     public Model(){
-
+        clearGrid();
     }
     public void connect(){
         String serverName = "localhost";
@@ -35,8 +39,11 @@ public class Model extends Observable {
             //out.writeUTF("Hello from " + client.getLocalSocketAddress());
             inFromServer = client.getInputStream();
             in = new DataInputStream(inFromServer);
-            System.out.println("Your Game ID: " + in.read());
-            System.out.println("Your Player ID:  " + in.read());
+
+            myGameID = in.read();
+            myPlayerID = in.read();
+            System.out.println("Your Game ID: " + myGameID);
+            System.out.println("Your Player ID:  " + myPlayerID);
             receiver = new Receiver();
 
         }catch (IOException e){
@@ -60,6 +67,10 @@ public class Model extends Observable {
                     String msg = new String(packet.getData(), packet.getOffset(),
                             packet.getLength());
                     System.out.println("[Multicast  Receiver] Received:" + msg);
+                    String delims = "[,]";
+                    String[] message = msg.split(delims);
+                    handleMSG(message);
+
                 } catch (IOException e){
                     e.printStackTrace();
                 }
@@ -68,8 +79,33 @@ public class Model extends Observable {
         }
     }
 
+    private void handleMSG(String[] msg){
+        int receivedGameID = Integer.parseInt(msg[0]);
+        if(receivedGameID == myGameID){
+            int receivedPlayerID = Integer.parseInt(msg[1]);
+            int receivedX = Integer.parseInt(msg[2]);
+            int receivedY = Integer.parseInt(msg[3]);
+            int receivedGameOver = Integer.parseInt(msg[4]);
+            if(receivedPlayerID == myPlayerID){
+                grid[receivedX][receivedY] = "ME";
+
+            }else{
+                grid[receivedX][receivedY] = "OTHER";
+            }
+            gameOver = receivedGameOver;
+            setChanged();
+            notifyObservers();
+        }
+
+        System.out.println(receivedGameID);
+        System.out.println(msg[1]);
+        System.out.println(msg[2]);
+        System.out.println(msg[3]);
+
+    }
+
     public void send(){
-        String group = "239.255.255.250";
+        String group = "229.255.255.250";
         int port = 1900;
 
         try {
@@ -107,6 +143,9 @@ public class Model extends Observable {
         try {
             out.writeUTF("DISCONNECT");
             out.flush();
+            out.write(myGameID);
+            out.flush();
+            out.write(myPlayerID);
             out.close();
         } catch (SocketException e){
             System.out.println("You are not connected to the Server.");
@@ -116,15 +155,30 @@ public class Model extends Observable {
     }
 
     public void move(int x, int y){
-        try {
-            out.writeUTF("MOVE");
-            out.write(x);
-            out.write(y);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(gameOver == 0){
+            try {
+                out.writeUTF("MOVE");
+                out.write(myGameID);
+                out.write(myPlayerID);
+                out.write(x);
+                out.write(y);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }else {
+            System.out.println("THE GAME IS OVER");
         }
 
         //Send request to make a move at x,y
+    }
+
+    public void clearGrid(){
+        for(int i = 0; i < grid.length; i++){
+            for(int n = 0; n < grid[i].length; n++){
+                grid[i][n] = "EMPTY";
+            }
+        }
     }
 
 

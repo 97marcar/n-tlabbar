@@ -31,13 +31,11 @@ public class Control extends Observable implements  Observer{
         model.move(x, y);
     }
     public String locationStatus(int x, int y){
-        return("EMPTY");
+        return(model.grid[x][y]);
     }
-    private void setChangedAndNotify(){
+
+    public void update(Observable o, Object arg) {
         setChanged();
         notifyObservers();
-    }
-    public void update(Observable o, Object arg) {
-
     }
 }
