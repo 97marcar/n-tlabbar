@@ -51,9 +51,11 @@ public class Server extends Thread{
     public void run(){
         while(true){
             try {
+
                 System.out.println("Waiting for client on port " + serverSocket.getLocalPort() + "...");
                 server = serverSocket.accept();
                 System.out.println("Just connected to " + server.getRemoteSocketAddress());
+                System.out.println(server.getLocalSocketAddress());
                 DataInputStream in = new DataInputStream(server.getInputStream());
                 ListenThread listenThread = new ListenThread(in);
                 listenThread.start();
@@ -144,10 +146,10 @@ public class Server extends Thread{
 
         try {
             DatagramSocket datagramSocket = new DatagramSocket();
-            InetAddress groupAdress = InetAddress.getByName(group);
+            InetAddress groupAddress = InetAddress.getByName(group);
             byte[] msg = sendString.getBytes();
             DatagramPacket packet = new DatagramPacket(msg, msg.length);
-            packet.setAddress(groupAdress);
+            packet.setAddress(groupAddress);
             packet.setPort(port);
             datagramSocket.send(packet);
 
