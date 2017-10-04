@@ -3,12 +3,18 @@ package model;
 import java.io.*;
 import java.net.*;
 import java.util.Observable;
-
+/**
+ *
+ * @author Marcus Carlsson
+ * @since 2017-09-24
+ * @version 1.0
+ */
 
 public class Model extends Observable {
     private MulticastSocket multicastSocket;
     private int port = 6066;
     private String group = "229.255.255.250";
+    private String serverName = "localhost";
     private Socket client;
     private OutputStream outToServer;
     private DataOutputStream out;
@@ -24,8 +30,8 @@ public class Model extends Observable {
         clearGrid();
     }
     public void connect(){
-        String serverName = "localhost";
-        int port = 6066;
+
+
         try {
             System.out.println("Connecting to " + serverName + " on port " + port);
             client = new Socket(serverName, port);
@@ -36,7 +42,6 @@ public class Model extends Observable {
             out.writeUTF("CONNECT");
             out.flush();
 
-            //out.writeUTF("Hello from " + client.getLocalSocketAddress());
             inFromServer = client.getInputStream();
             in = new DataInputStream(inFromServer);
 
@@ -44,22 +49,28 @@ public class Model extends Observable {
             myPlayerID = in.read();
             System.out.println("Your Game ID: " + myGameID);
             System.out.println("Your Player ID:  " + myPlayerID);
-            receiver = new Receiver();
+            receiver = new Receiver(group, 6745, true);
 
         }catch (IOException e){
-            e.printStackTrace();
+            System.out.println("Could not connect to the server.");
         }
     }
 
 
     private class Receiver{
-        Receiver (){
+        private String group;
+        private int port;
+        private boolean update;
+        Receiver (String g, int p, boolean u){
+            group = g;
+            port =  p;
+            update = u;
             while(true){
                 try{
-                    InetAddress groupAdress = InetAddress.getByName(group);
-                    multicastSocket = new MulticastSocket(1900);
+                    InetAddress groupAddress = InetAddress.getByName(group);
+                    multicastSocket = new MulticastSocket(port);
                     System.out.println("Multicast Reciver running at:" + multicastSocket.getLocalSocketAddress());
-                    multicastSocket.joinGroup(groupAdress);
+                    multicastSocket.joinGroup(groupAddress);
 
                     DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
                     System.out.println("Waiting for a  multicast message...");
@@ -87,10 +98,11 @@ public class Model extends Observable {
             int receivedY = Integer.parseInt(msg[3]);
             int receivedGameOver = Integer.parseInt(msg[4]);
             if(receivedPlayerID == myPlayerID){
-                grid[receivedX][receivedY] = "ME";
+                if(!(receivedX == -1 && receivedY == -1)) grid[receivedX][receivedY] = "ME";
 
             }else{
-                grid[receivedX][receivedY] = "OTHER";
+                if(receivedX == -1 && receivedY == -1) clearGrid();
+                else grid[receivedX][receivedY] = "OTHER";
             }
             gameOver = receivedGameOver;
             setChanged();
@@ -105,20 +117,19 @@ public class Model extends Observable {
     }
 
     public void send(){
-        String group = "229.255.255.250";
+        String group = "239.255.255.250";
         int port = 1900;
 
         try {
             DatagramSocket datagramSocket = new DatagramSocket();
-            InetAddress groupAdress = InetAddress.getByName(group);
-            byte[] msg = "Hello".getBytes();
+            InetAddress groupAddress = InetAddress.getByName(group);
+            byte[] msg = "REQUEST".getBytes();
             DatagramPacket packet = new DatagramPacket(msg, msg.length);
-            packet.setAddress(groupAdress);
+            packet.setAddress(groupAddress);
             packet.setPort(port);
             datagramSocket.send(packet);
 
             System.out.println("Sent a  multicast message.");
-            System.out.println("Exiting application");
 
             datagramSocket.close();
         } catch (IOException e){
@@ -128,8 +139,9 @@ public class Model extends Observable {
     }
 
     public void restart(){
+        send();
         try {
-            out.writeUTF("RESTART");
+            connect();
             out.flush();
         } catch (SocketException e){
             connect();
@@ -147,7 +159,10 @@ public class Model extends Observable {
             out.flush();
             out.write(myPlayerID);
             out.close();
-        } catch (SocketException e){
+        }catch (NullPointerException e){
+            System.out.println("You are not connected to the Server.");
+        }
+        catch (SocketException e){
             System.out.println("You are not connected to the Server.");
         }catch (IOException e) {
             e.printStackTrace();
@@ -163,14 +178,16 @@ public class Model extends Observable {
                 out.write(x);
                 out.write(y);
 
-            } catch (IOException e) {
-                e.printStackTrace();
+            }catch (NullPointerException e){
+                System.out.println("You are not connected to the Server.");
+            }
+            catch (IOException e) {
+                System.out.println("You are not connected to the Server.");
             }
         }else {
             System.out.println("THE GAME IS OVER");
         }
 
-        //Send request to make a move at x,y
     }
 
     public void clearGrid(){
@@ -190,28 +207,3 @@ public class Model extends Observable {
 
 }
 
-/**SKit som ska till Server
- * public final int EMPTY = 0;
- public final int ME = 1;
- public final int OTHER = 2;
- private int inrow = 0;
- int[][] grid;
- private final int NOT_STARTED = 0;
- private final int MY_TURN = 1;
- private final int OTHER_TURN = 2;
- private final int FINISHED = 3;
-
- public Model(){
- grid = new int[3][3];
- clearGrid();
- }
-
- //Move to Server
- public void clearGrid(){
- for(int i = 0; i < grid.length; i++){
- for(int n = 0; n < grid[i].length; n++){
- grid[i][n] = EMPTY;
- }
- }
- }
- */

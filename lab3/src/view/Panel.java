@@ -7,6 +7,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Observable;
 import java.util.Observer;
+/**
+ *
+ * @author Marcus Carlsson
+ * @since 2017-09-24
+ * @version 1.0
+ */
 
 public class Panel extends JPanel implements Observer{
     private final int SQUARE_SIZE = 150;

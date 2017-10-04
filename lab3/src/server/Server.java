@@ -3,7 +3,12 @@ package server;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
-
+/**
+ *
+ * @author Marcus Carlsson
+ * @since 2017-09-24
+ * @version 1.0
+ */
 public class Server extends Thread{
     private ServerSocket serverSocket;
     private Socket server;
@@ -17,6 +22,7 @@ public class Server extends Thread{
     public Server(int port) throws IOException{
         this.port = port;
         serverSocket = new ServerSocket(port);
+        //Receiver receiver = new Receiver("239.255.255.250", 1900);
     }
 
     private int generateGameID(){
@@ -30,23 +36,41 @@ public class Server extends Thread{
         return(playerID);
     }
 
-    public void receiver() throws IOException{
-        while (true){
+    private class Receiver{
+        private String group;
+        private int port;
+        Receiver (String g, int p){
+            System.out.println("RECEIVER CREATED");
+            group = g;
+            port =  p;
+            while(true){
+                try{
+                    InetAddress groupAddress = InetAddress.getByName(group);
+                    multicastSocket = new MulticastSocket(port);
+                    System.out.println("Multicast Reciver running at:" + multicastSocket.getLocalSocketAddress());
+                    multicastSocket.joinGroup(groupAddress);
 
-            InetAddress groupAdress = InetAddress.getByName(group);
-            multicastSocket = new MulticastSocket(port);
-            System.out.println("Multicast Reciver running at:" + multicastSocket.getLocalSocketAddress());
-            multicastSocket.joinGroup(groupAdress);
+                    DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
+                    System.out.println("Waiting for a  multicast message...");
+                    multicastSocket.receive(packet);
+                    String msg = new String(packet.getData(), packet.getOffset(),
+                            packet.getLength());
+                    System.out.println("[Multicast  Receiver] Received:" + msg);
+                    if (msg.equals("REQUEST")){
+                        System.out.println(serverSocket.getInetAddress());
+                        System.out.println(serverSocket.getLocalPort());
+                        String answer = "SERVICE QUERY JavaGameServer ThreeInARow"+serverSocket.getInetAddress()+serverSocket.getLocalPort();
+                        send(answer, group, port);
+                    }
 
-            DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
-            System.out.println("Waiting for a  multicast message...");
-            multicastSocket.receive(packet);
-            String msg = new String(packet.getData(), packet.getOffset(),
-                    packet.getLength());
-            System.out.println("[Multicast  Receiver] Received:" + msg);
+
+                } catch (IOException e){
+                    e.printStackTrace();
+                }
+
+            }
         }
     }
-
 
     public void run(){
         while(true){
@@ -83,7 +107,7 @@ public class Server extends Thread{
                         int yourGameID = -1;
                         boolean availableGame = false;
                         for(int i = 0; i<games.size(); i++){
-                            if(!(games.get(i).avaliableSpot())){
+                            if(!(games.get(i).availableSpot())){
                                 availableGame = true;
                                 games.get(i).setPlayer(yourID);
                                 yourGameID = games.get(i).getGameID();
@@ -107,6 +131,7 @@ public class Server extends Thread{
                                 System.out.println("GET GAMES ID: "+games.get(i).getGameID());
                                 games.get(i).removePlayer(disconnectPlayerID);
                                 System.out.println("PLAYER: "+disconnectPlayerID+" DISCONNECTED FROM GAME: " +disconnectGameID);
+                                send(disconnectGameID+","+disconnectPlayerID+","+-1+","+-1+","+0, "229.255.255.250",6745);
                                 break;
                             }
                         }
@@ -124,7 +149,8 @@ public class Server extends Thread{
                             Game game = games.get(i);
                             if(game.getGameID()==gameMovementID){
                                 if(game.move(x, y, playerMovementID)){
-                                    send(gameMovementID+","+playerMovementID+","+x+","+y+","+game.getGameOver());
+                                    System.out.println("MOVE MADE");
+                                    send(gameMovementID+","+playerMovementID+","+x+","+y+","+game.getGameOver(), "229.255.255.250",6745);
                                 }
                             }
                         }
@@ -140,9 +166,8 @@ public class Server extends Thread{
 
         }
     }
-    public void send(String sendString){
-        String group = "229.255.255.250";
-        int port = 1900;
+    public void send(String sendString, String group, int port){
+
 
         try {
             DatagramSocket datagramSocket = new DatagramSocket();

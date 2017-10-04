@@ -1,6 +1,11 @@
 package control;
 
-
+/**
+ *
+ * @author Marcus Carlsson
+ * @since 2017-09-24
+ * @version 1.0
+ */
 
 import model.Model;
 import view.View;

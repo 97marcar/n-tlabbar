@@ -1,4 +1,10 @@
 package server;
+/**
+ *
+ * @author Marcus Carlsson
+ * @since 2017-09-24
+ * @version 1.0
+ */
 
 public class Game {
     public final int EMPTY = -1;
@@ -29,19 +35,25 @@ public class Game {
     public boolean move(int x, int y, int playerID){
         System.out.println("CURRENT PLAYERS TURN: "+playersTurn);
         System.out.println("CURRENT PLAYERS: "+playerID);
-        if(playersTurn == playerID){
-            if(grid[x][y] == -1){
-                grid[x][y] = playerID;
-                checkWin(playerID);
-                playersTurn = (playersTurn==player1) ?  player2 : player1;
-                System.out.println("NEW PLAYERS TURN:"+playersTurn);
-                return (true);
-            }else{
+        System.out.println(gameInSession+"IN MOVE");
+        if(gameInSession){
+            if(playersTurn == playerID){
+                if(grid[x][y] == -1){
+                    grid[x][y] = playerID;
+                    checkWin(playerID);
+                    playersTurn = (playersTurn==player1) ?  player2 : player1;
+                    System.out.println("NEW PLAYERS TURN:"+playersTurn);
+                    return (true);
+                }else{
+                    return (false);
+                }
+            }else {
                 return (false);
             }
-        }else {
+        }else{
             return (false);
         }
+
 
     }
 
@@ -61,17 +73,20 @@ public class Game {
         System.out.println("REMOVE BEGIN PLAYERID: "+playerID);
         if(playerID == player1){
             player1 = -1;
+            gameOver = 0;
             System.out.println("1 REMOVED");
-            gameInSession = false;
         }else if(playerID == player2){
             System.out.println("2 REMOVED");
+            gameOver = 0;
             player2 = -1;
-            gameInSession = false;
         }
     }
 
-    public boolean avaliableSpot(){
-        return(!(player1 == -1 ^ player2 == -1));
+    public boolean availableSpot(){
+        gameInSession = (player1 == -1 ^ player2 == -1);
+        System.out.println(gameInSession+"IN SPOT");
+        if(gameInSession) clearGrid();
+        return(!gameInSession);
     }
 
 

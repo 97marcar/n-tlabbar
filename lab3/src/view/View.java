@@ -7,7 +7,12 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Observable;
 import java.util.Observer;
-
+/**
+ *
+ * @author Marcus Carlsson
+ * @since 2017-09-24
+ * @version 1.0
+ */
 public class View extends JFrame implements Observer{
     private Control control;
     private Panel panel;
