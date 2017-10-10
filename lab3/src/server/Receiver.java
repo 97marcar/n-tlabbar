@@ -53,7 +53,7 @@ public class Receiver {
                 if (msg.equals("REQUEST")){
                     System.out.println(serverSocket.getInetAddress());
                     System.out.println(serverSocket.getLocalPort());
-                    String answer = " SERVICE QUERY JavaGameServer ThreeInARow "+serverSocket.getInetAddress()+" "+serverSocket.getLocalPort();
+                    String answer = " SERVICE QUERY JavaGameServer ThreeInARow "+serverSocket.getInetAddress()+" "+server.getPort();
                     server.send(answer, "229.255.255.250", 6745);
                 }
 

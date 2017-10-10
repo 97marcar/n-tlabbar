@@ -26,9 +26,14 @@ public class Control extends Observable implements  Observer{
         this.view = v;
         this.model = m;
         view.setControl(this);
-        model.addObserver(this);
-        model.connect();
+        model.startMulticast();
 
+
+    }
+
+    public void joinServer(String ip){
+        model.addObserver(this);
+        model.connect(ip);
     }
 
     /**

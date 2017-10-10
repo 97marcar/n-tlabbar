@@ -17,8 +17,11 @@ public class View extends JFrame{
     private Control control;
     private Panel panel;
     private JButton restartButton;
+    private JButton joinServerButton;
     private JButton disconnectButton;
     private JButton findServerButton;
+    private JTextField ipTextField;
+
 
 
     /**
@@ -30,19 +33,6 @@ public class View extends JFrame{
 
         panel = new Panel();
 
-        findServerButton = new JButton("Find Servers");
-        findServerButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                control.findServer();
-            }
-        });
-        restartButton = new JButton("Restart");
-        restartButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Restart");
-                control.restart();
-            }
-        });
         disconnectButton = new JButton("Disconnect");
         disconnectButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -50,6 +40,30 @@ public class View extends JFrame{
                 control.disconnect();
             }
         });
+
+        ipTextField = new JTextField();
+        joinServerButton = new JButton("Join Server");
+        joinServerButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                control.joinServer(ipTextField.getText());
+            }
+        });
+        findServerButton = new JButton("Find Servers");
+        findServerButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                control.findServer();
+            }
+        });
+
+        restartButton = new JButton("Restart");
+        restartButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Restart");
+                control.restart();
+            }
+        });
+
+
 
         panel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
@@ -59,6 +73,8 @@ public class View extends JFrame{
                 control.move(pos[0], pos[1]);
             }
         });
+
+
 
 
         setLayout();
@@ -79,6 +95,8 @@ public class View extends JFrame{
         Box panelBox = new Box(BoxLayout.X_AXIS);
         Box containerBox = new Box(BoxLayout.Y_AXIS);
 
+        buttonBox.add(ipTextField);
+        buttonBox.add(joinServerButton);
         buttonBox.add(findServerButton);
         buttonBox.add(restartButton);
         buttonBox.add(disconnectButton);

@@ -25,42 +25,47 @@ public class Model extends Observable {
     private int myPlayerID;
     public String[][] grid = new String[3][3];
     private int gameOver;
+    private boolean connected = false;
 
     /**
      * Creates a model and clear the game field.
      */
     public Model(){
         clearGrid();
+
     }
 
     /**
      * Connects to a server and creates a multicast receiver.
      */
-    public void connect(){
-        serverName = "0.0.0.0";
+    public void connect(String ip){
+        if(!(connected)){
+            connected = true;
+            serverName = ip;
+            try {
+                System.out.println("Connecting to " + serverName + " on port " + port);
+                client = new Socket(serverName, port);
 
-        try {
-            System.out.println("Connecting to " + serverName + " on port " + port);
-            client = new Socket(serverName, port);
+                System.out.println("Just connected to " + client.getRemoteSocketAddress());
+                outToServer = client.getOutputStream();
+                out = new DataOutputStream(outToServer);
+                out.writeUTF("CONNECT");
+                out.flush();
 
-            System.out.println("Just connected to " + client.getRemoteSocketAddress());
-            outToServer = client.getOutputStream();
-            out = new DataOutputStream(outToServer);
-            out.writeUTF("CONNECT");
-            out.flush();
+                inFromServer = client.getInputStream();
+                in = new DataInputStream(inFromServer);
 
-            inFromServer = client.getInputStream();
-            in = new DataInputStream(inFromServer);
+                myGameID = in.read();
+                myPlayerID = in.read();
+                System.out.println("Your Game ID: " + myGameID);
+                System.out.println("Your Player ID:  " + myPlayerID);
 
-            myGameID = in.read();
-            myPlayerID = in.read();
-            System.out.println("Your Game ID: " + myGameID);
-            System.out.println("Your Player ID:  " + myPlayerID);
-            receiver = new Receiver(group, 6745);
 
-        }catch (IOException e){
-            System.out.println("Could not connect to the server.");
+            }catch (IOException e){
+                System.out.println("Could not connect to the server.");
+            }
         }
+
     }
 
 
@@ -74,7 +79,7 @@ public class Model extends Observable {
                 try{
                     InetAddress groupAddress = InetAddress.getByName(group);
                     multicastSocket = new MulticastSocket(port);
-                    System.out.println("Multicast Reciver running at:" + multicastSocket.getLocalSocketAddress());
+                    //System.out.println("Multicast Reciver running at:" + multicastSocket.getLocalSocketAddress());
                     multicastSocket.joinGroup(groupAddress);
 
                     DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
@@ -166,11 +171,16 @@ public class Model extends Observable {
 
     }
 
+    public void startMulticast(){
+        receiver = new Receiver(group, 6745);
+    }
+
     /**
      * Sends a request to disconnect
      */
     public void disconnect(){
         try {
+            connected = false;
             out.writeUTF("DISCONNECT");
             out.flush();
             out.write(myGameID);

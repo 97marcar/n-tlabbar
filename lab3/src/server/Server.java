@@ -14,6 +14,7 @@ public class Server extends Thread{
     private Socket server;
     private int gameID = -1;
     private int playerID = -1;
+    private int port;
     private ArrayList<Game> games = new ArrayList<Game>();
 
     /**
@@ -22,10 +23,13 @@ public class Server extends Thread{
      * @throws IOException throws this Exception if something is wrong
      */
     public Server(int port) throws IOException{
-       serverSocket = new ServerSocket(port);
+        this.port = port;
+        serverSocket = new ServerSocket(port);
 
     }
-
+    public int getPort(){
+        return(port);
+    }
     private int generateGameID(){
         gameID++;
         return (gameID);
