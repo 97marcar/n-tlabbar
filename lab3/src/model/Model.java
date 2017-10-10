@@ -14,7 +14,7 @@ public class Model extends Observable {
     private MulticastSocket multicastSocket;
     private int port = 6066;
     private String group = "229.255.255.250";
-    private String serverName = "localhost";
+    private String serverName;
     private Socket client;
     private OutputStream outToServer;
     private DataOutputStream out;
@@ -26,11 +26,18 @@ public class Model extends Observable {
     public String[][] grid = new String[3][3];
     private int gameOver;
 
+    /**
+     * Creates a model and clear the game field.
+     */
     public Model(){
         clearGrid();
     }
-    public void connect(){
 
+    /**
+     * Connects to a server and creates a multicast receiver.
+     */
+    public void connect(){
+        serverName = "0.0.0.0";
 
         try {
             System.out.println("Connecting to " + serverName + " on port " + port);
@@ -49,7 +56,7 @@ public class Model extends Observable {
             myPlayerID = in.read();
             System.out.println("Your Game ID: " + myGameID);
             System.out.println("Your Player ID:  " + myPlayerID);
-            receiver = new Receiver(group, 6745, true);
+            receiver = new Receiver(group, 6745);
 
         }catch (IOException e){
             System.out.println("Could not connect to the server.");
@@ -60,11 +67,9 @@ public class Model extends Observable {
     private class Receiver{
         private String group;
         private int port;
-        private boolean update;
-        Receiver (String g, int p, boolean u){
+        Receiver (String g, int p){
             group = g;
             port =  p;
-            update = u;
             while(true){
                 try{
                     InetAddress groupAddress = InetAddress.getByName(group);
@@ -80,7 +85,11 @@ public class Model extends Observable {
                     System.out.println("[Multicast  Receiver] Received:" + msg);
                     String delims = "[,]";
                     String[] message = msg.split(delims);
-                    handleMSG(message);
+                    try{
+                        handleMSG(message);
+                    }catch(NumberFormatException e){
+
+                    }
 
                 } catch (IOException e){
                     e.printStackTrace();
@@ -91,18 +100,19 @@ public class Model extends Observable {
     }
 
     private void handleMSG(String[] msg){
+
         int receivedGameID = Integer.parseInt(msg[0]);
         if(receivedGameID == myGameID){
             int receivedPlayerID = Integer.parseInt(msg[1]);
             int receivedX = Integer.parseInt(msg[2]);
             int receivedY = Integer.parseInt(msg[3]);
             int receivedGameOver = Integer.parseInt(msg[4]);
+            if(receivedX == -1 && receivedY == -1) clearGrid();
             if(receivedPlayerID == myPlayerID){
                 if(!(receivedX == -1 && receivedY == -1)) grid[receivedX][receivedY] = "ME";
 
             }else{
-                if(receivedX == -1 && receivedY == -1) clearGrid();
-                else grid[receivedX][receivedY] = "OTHER";
+                if(!(receivedX == -1 && receivedY == -1)) grid[receivedX][receivedY] = "OTHER";
             }
             gameOver = receivedGameOver;
             setChanged();
@@ -116,6 +126,9 @@ public class Model extends Observable {
 
     }
 
+    /**
+     * Sends a request to the multicast group 239.255.255.250 port 1900 to see which servers are on
+     */
     public void send(){
         String group = "239.255.255.250";
         int port = 1900;
@@ -138,19 +151,24 @@ public class Model extends Observable {
 
     }
 
+    /**
+     * Sends a request to restart the game
+     */
     public void restart(){
-        send();
         try {
-            connect();
+            out.writeUTF("RESTART");
             out.flush();
-        } catch (SocketException e){
-            connect();
+            out.write(myGameID);
+            out.flush();
         }catch (IOException e) {
             e.printStackTrace();
         }
 
     }
 
+    /**
+     * Sends a request to disconnect
+     */
     public void disconnect(){
         try {
             out.writeUTF("DISCONNECT");
@@ -169,6 +187,11 @@ public class Model extends Observable {
         }
     }
 
+    /**
+     * Sends a move request at x and y
+     * @param x position x-axis
+     * @param y position y-axis
+     */
     public void move(int x, int y){
         if(gameOver == 0){
             try {
@@ -190,7 +213,8 @@ public class Model extends Observable {
 
     }
 
-    public void clearGrid(){
+
+    private void clearGrid(){
         for(int i = 0; i < grid.length; i++){
             for(int n = 0; n < grid[i].length; n++){
                 grid[i][n] = "EMPTY";
@@ -200,10 +224,6 @@ public class Model extends Observable {
 
 
 
-    private void setChangedAndNotify(){
-        setChanged();
-        notifyObservers();
-    }
 
 }
 

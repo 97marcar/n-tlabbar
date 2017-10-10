@@ -6,7 +6,7 @@ package server;
  * @version 1.0
  */
 
-public class Game {
+class Game {
     public final int EMPTY = -1;
     private int gameID;
     private int player1 = -1;
@@ -17,14 +17,19 @@ public class Game {
     private int gameOver = 0;
     private int playersTurn;
 
-    public Game(int gameID, int player1){
-        System.out.println("SPEL SKAPAT");
+    /**
+     * Creates a game and sets the first player that connects to player 1.
+     * @param gameID gameID to make sure the server and clients know which game is which.
+     * @param player1 which specific client that is connected to this specific game
+     */
+     Game(int gameID, int player1){
+        System.out.println("GAME CREATED");
         this.gameID = gameID;
         this.player1 = player1;
         clearGrid();
     }
 
-    public void clearGrid(){
+     private void clearGrid(){
         for(int i = 0; i < grid.length; i++){
             for(int n = 0; n < grid[i].length; n++){
                 grid[i][n] = EMPTY;
@@ -32,7 +37,22 @@ public class Game {
         }
     }
 
-    public boolean move(int x, int y, int playerID){
+    /**
+     * Restarts the game
+     */
+    void restart(){
+         clearGrid();
+         gameOver = 0;
+    }
+
+    /**
+     * Makes a move in the game if its the correct players turn
+     * @param x where on x-axis
+     * @param y where on y-axis
+     * @param playerID which player that makes the move
+     * @return true if move went though else false
+     */
+     boolean move(int x, int y, int playerID){
         System.out.println("CURRENT PLAYERS TURN: "+playersTurn);
         System.out.println("CURRENT PLAYERS: "+playerID);
         System.out.println(gameInSession+"IN MOVE");
@@ -57,7 +77,11 @@ public class Game {
 
     }
 
-    public void setPlayer(int playerID){
+    /**
+     * Sets a connected player to the available spot(
+     * @param playerID new player
+     */
+     void setPlayer(int playerID){
         if(player1 == -1){
             player1 = playerID;
         }else if(player2 == -1){
@@ -69,7 +93,12 @@ public class Game {
         System.out.println("PLAYER: "+ playerID +" CONNECTED TO: "+getGameID());
 
     }
-    public void removePlayer(int playerID){
+
+    /**
+     * Removes a player
+     * @param playerID which player to remove
+     */
+     void removePlayer(int playerID){
         System.out.println("REMOVE BEGIN PLAYERID: "+playerID);
         if(playerID == player1){
             player1 = -1;
@@ -82,7 +111,11 @@ public class Game {
         }
     }
 
-    public boolean availableSpot(){
+    /**
+     * checks if there is an available spot
+     * @return
+     */
+     boolean availableSpot(){
         gameInSession = (player1 == -1 ^ player2 == -1);
         System.out.println(gameInSession+"IN SPOT");
         if(gameInSession) clearGrid();
@@ -90,7 +123,7 @@ public class Game {
     }
 
 
-    private boolean vertical(int player){
+     private boolean vertical(int player){
         for(int y = 0; y < grid.length; y++){
             inrow = 0;
             for(int x = 0; x < grid[0].length; x++){
@@ -189,24 +222,31 @@ public class Game {
 
         return(false);
     }
+
     /**
      * Check if a player has 3 in row, if he does set the gameOver to 1
      *
      * @param player the player to check for
      *
      */
-    public void checkWin(int player){
+     void checkWin(int player){
         if(vertical(player) || horisontal(player) || diagonal(player)){
             gameOver = 1;
         }
     }
 
 
-    public int getGameID(){
+    /**
+     * @return gameID
+     */
+     int getGameID(){
         return gameID;
     }
 
-    public int getGameOver(){
+    /**
+     * @return gameOver
+     */
+     int getGameOver(){
         return gameOver;
     }
 }

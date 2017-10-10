@@ -13,20 +13,29 @@ import java.util.Observer;
  * @since 2017-09-24
  * @version 1.0
  */
-public class View extends JFrame implements Observer{
+public class View extends JFrame{
     private Control control;
     private Panel panel;
     private JButton restartButton;
     private JButton disconnectButton;
-    private JLabel messageLabel;
+    private JButton findServerButton;
 
 
-
+    /**
+     * Creates a GUI for the program containing everything that it needs:
+     * buttons and game field.
+     */
     public View(){
         this.setTitle("Three in a row");
 
         panel = new Panel();
 
+        findServerButton = new JButton("Find Servers");
+        findServerButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                control.findServer();
+            }
+        });
         restartButton = new JButton("Restart");
         restartButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -51,7 +60,6 @@ public class View extends JFrame implements Observer{
             }
         });
 
-        messageLabel = new JLabel("Welcome");
 
         setLayout();
         this.setResizable(false);
@@ -68,31 +76,29 @@ public class View extends JFrame implements Observer{
     }
     private void setLayout(){
         Box buttonBox = new Box(BoxLayout.X_AXIS);
-        Box messageBox = new Box(BoxLayout.X_AXIS);
         Box panelBox = new Box(BoxLayout.X_AXIS);
         Box containerBox = new Box(BoxLayout.Y_AXIS);
 
+        buttonBox.add(findServerButton);
         buttonBox.add(restartButton);
         buttonBox.add(disconnectButton);
 
-        messageBox.add(messageLabel);
 
         panelBox.add(panel);
 
 
         containerBox.add(panelBox);
         containerBox.add(buttonBox);
-        containerBox.add(messageBox);
         this.add(containerBox);
     }
 
+    /**
+     * sets the control
+     * @param c control
+     */
     public void setControl(Control c){
         control = c;
         panel.setControl(c);
-        c.addObserver(this);
     }
 
-    public void update(Observable o, Object arg) {
-
-    }
 }
