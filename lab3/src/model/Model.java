@@ -71,6 +71,12 @@ public class Model extends Observable {
     }
 
 
+    /**
+     * Every client listens to a specific IP and port to gain information about which servers
+     * are online so they know if there is any available for them to join.
+     *
+     * This also receives the updates to the game and sends it to a private method where it is processed.
+     */
     private class Receiver{
         private String group;
         private int port;
@@ -106,6 +112,10 @@ public class Model extends Observable {
         }
     }
 
+    /**
+     * Handles multicast message received from the server
+     * @param msg
+     */
     private void handleMSG(String[] msg){
 
         int receivedGameID = Integer.parseInt(msg[0]);
@@ -204,10 +214,15 @@ public class Model extends Observable {
         if(gameOver == 0){
             try {
                 out.writeUTF("MOVE");
+                out.flush();
                 out.write(myGameID);
+                out.flush();
                 out.write(myPlayerID);
+                out.flush();
                 out.write(x);
+                out.flush();
                 out.write(y);
+                out.flush();
 
             }catch (NullPointerException e){
                 System.out.println("You are not connected to the Server.");

@@ -65,6 +65,10 @@ public class Server extends Thread{
         }
     }
 
+    /**
+     * A class that is created for every client and listens to their specific input.
+     * It also handles the input and calls the send function that is outside of this class.
+     */
     private class ListenThread extends Thread{
         private DataInputStream in;
         public ListenThread(DataInputStream in){

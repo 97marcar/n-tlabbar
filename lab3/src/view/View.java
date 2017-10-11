@@ -3,10 +3,8 @@ package view;
 import control.Control;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.*;
-import java.util.Observable;
-import java.util.Observer;
+
 /**
  *
  * @author Marcus Carlsson
