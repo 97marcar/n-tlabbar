@@ -36,6 +36,9 @@ public class Model extends Observable {
 
     /**
      * Connects to a server and creates a multicast receiver.
+     *
+     * @param ip the address you want to connect to
+     * @param port the port you want to connect to
      */
     public void connect(String ip, int port){
         if(!(connected)){

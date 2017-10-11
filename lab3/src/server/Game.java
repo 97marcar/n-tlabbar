@@ -6,8 +6,8 @@ package server;
  * @version 1.0
  */
 
-class Game {
-    public final int EMPTY = -1;
+public class Game {
+    private final int EMPTY = -1;
     private int gameID;
     private int player1 = -1;
     private int player2 = -1;
@@ -22,7 +22,7 @@ class Game {
      * @param gameID gameID to make sure the server and clients know which game is which.
      * @param player1 which specific client that is connected to this specific game
      */
-     Game(int gameID, int player1){
+    public Game(int gameID, int player1){
         System.out.println("GAME CREATED");
         this.gameID = gameID;
         this.player1 = player1;
@@ -40,7 +40,7 @@ class Game {
     /**
      * Restarts the game
      */
-    void restart(){
+    public void restart(){
          clearGrid();
          gameOver = 0;
     }
@@ -52,7 +52,7 @@ class Game {
      * @param playerID which player that makes the move
      * @return true if move went though else false
      */
-     boolean move(int x, int y, int playerID){
+    public boolean move(int x, int y, int playerID){
         System.out.println("CURRENT PLAYERS TURN: "+playersTurn);
         System.out.println("CURRENT PLAYER: "+playerID);
         if(gameInSession){
@@ -77,10 +77,10 @@ class Game {
     }
 
     /**
-     * Sets a connected player to the available spot(
+     * Sets a connected player to the available spot
      * @param playerID new player
      */
-     void setPlayer(int playerID){
+    public void setPlayer(int playerID){
         if(player1 == -1){
             player1 = playerID;
         }else if(player2 == -1){
@@ -114,7 +114,7 @@ class Game {
      * checks if there is an available spot
      * @return
      */
-     boolean availableSpot(){
+    public boolean availableSpot(){
         gameInSession = (player1 == -1 ^ player2 == -1);
         if(gameInSession) clearGrid();
         return(!gameInSession);
@@ -227,7 +227,7 @@ class Game {
      * @param player the player to check for
      *
      */
-     void checkWin(int player){
+    public void checkWin(int player){
         if(vertical(player) || horisontal(player) || diagonal(player)){
             gameOver = 1;
         }
@@ -237,14 +237,14 @@ class Game {
     /**
      * @return gameID
      */
-     int getGameID(){
+    public int getGameID(){
         return gameID;
     }
 
     /**
      * @return gameOver
      */
-     int getGameOver(){
+    public int getGameOver(){
         return gameOver;
     }
 }

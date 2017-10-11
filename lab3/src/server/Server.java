@@ -159,7 +159,7 @@ public class Server extends Thread{
      * @param group
      * @param port
      */
-    void send(String sendString, String group, int port){
+    public void send(String sendString, String group, int port){
         try {
             DatagramSocket datagramSocket = new DatagramSocket();
             InetAddress groupAddress = InetAddress.getByName(group);

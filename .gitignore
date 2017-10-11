@@ -18,6 +18,9 @@
 *.tar.gz
 *.rar
 *.iml
+*.html
+*.css
+*.js
 
 \.metadata/
 \.recommenders/
