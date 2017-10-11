@@ -12,7 +12,6 @@ import java.util.Observable;
 
 public class Model extends Observable {
     private MulticastSocket multicastSocket;
-    private int port = 6066;
     private String group = "229.255.255.250";
     private String serverName;
     private Socket client;
@@ -38,7 +37,7 @@ public class Model extends Observable {
     /**
      * Connects to a server and creates a multicast receiver.
      */
-    public void connect(String ip){
+    public void connect(String ip, int port){
         if(!(connected)){
             connected = true;
             serverName = ip;
@@ -124,10 +123,6 @@ public class Model extends Observable {
             notifyObservers();
         }
 
-        System.out.println(receivedGameID);
-        System.out.println(msg[1]);
-        System.out.println(msg[2]);
-        System.out.println(msg[3]);
 
     }
 

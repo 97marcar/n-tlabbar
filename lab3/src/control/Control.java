@@ -31,9 +31,9 @@ public class Control extends Observable implements  Observer{
 
     }
 
-    public void joinServer(String ip){
+    public void joinServer(String ip, int port){
         model.addObserver(this);
-        model.connect(ip);
+        model.connect(ip, port);
     }
 
     /**

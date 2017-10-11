@@ -27,7 +27,7 @@ public class Receiver {
      * @param s server so it can access the information it needs and sent it back.
      */
     public Receiver(String g, int p, Server s){
-        System.out.println("RECEIVER CREATED");
+        System.out.println("MULTICAST RECEIVER CREATED");
         group = g;
         port =  p;
         server = s;

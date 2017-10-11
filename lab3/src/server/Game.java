@@ -54,8 +54,7 @@ class Game {
      */
      boolean move(int x, int y, int playerID){
         System.out.println("CURRENT PLAYERS TURN: "+playersTurn);
-        System.out.println("CURRENT PLAYERS: "+playerID);
-        System.out.println(gameInSession+"IN MOVE");
+        System.out.println("CURRENT PLAYER: "+playerID);
         if(gameInSession){
             if(playersTurn == playerID){
                 if(grid[x][y] == -1){
@@ -117,7 +116,6 @@ class Game {
      */
      boolean availableSpot(){
         gameInSession = (player1 == -1 ^ player2 == -1);
-        System.out.println(gameInSession+"IN SPOT");
         if(gameInSession) clearGrid();
         return(!gameInSession);
     }

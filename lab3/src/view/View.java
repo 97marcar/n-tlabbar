@@ -21,6 +21,7 @@ public class View extends JFrame{
     private JButton disconnectButton;
     private JButton findServerButton;
     private JTextField ipTextField;
+    private JSpinner portSpinner;
 
 
 
@@ -42,10 +43,15 @@ public class View extends JFrame{
         });
 
         ipTextField = new JTextField();
+        SpinnerModel spinnerModel = new SpinnerNumberModel(6066, 0, 65535, 1);
+        portSpinner = new JSpinner(spinnerModel);
+        JComponent editor = new JSpinner.NumberEditor(portSpinner, "00000");
+        portSpinner.setEditor(editor);
+
         joinServerButton = new JButton("Join Server");
         joinServerButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                control.joinServer(ipTextField.getText());
+                control.joinServer(ipTextField.getText(), (int)portSpinner.getValue());
             }
         });
         findServerButton = new JButton("Find Servers");
@@ -91,13 +97,17 @@ public class View extends JFrame{
 
     }
     private void setLayout(){
+        Box serverBox = new Box(BoxLayout.X_AXIS);
         Box buttonBox = new Box(BoxLayout.X_AXIS);
         Box panelBox = new Box(BoxLayout.X_AXIS);
         Box containerBox = new Box(BoxLayout.Y_AXIS);
 
-        buttonBox.add(ipTextField);
-        buttonBox.add(joinServerButton);
-        buttonBox.add(findServerButton);
+
+        serverBox.add(ipTextField);
+        serverBox.add(portSpinner);
+        serverBox.add(joinServerButton);
+        serverBox.add(findServerButton);
+
         buttonBox.add(restartButton);
         buttonBox.add(disconnectButton);
 
@@ -106,7 +116,9 @@ public class View extends JFrame{
 
 
         containerBox.add(panelBox);
+        containerBox.add(serverBox);
         containerBox.add(buttonBox);
+
         this.add(containerBox);
     }
 

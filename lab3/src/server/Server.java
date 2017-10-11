@@ -75,9 +75,8 @@ public class Server extends Thread{
                 try {
                     DataOutputStream out = new DataOutputStream(server.getOutputStream());
                     String message = in.readUTF();
-                    System.out.println(message);
                     if(message.equals("CONNECT")){
-                        System.out.println("Connected");
+                        System.out.println("Client connected");
                         int yourID = generatePlayerID();
                         int yourGameID = -1;
                         boolean availableGame = false;
