@@ -119,6 +119,7 @@ public class Server extends Thread{
 
                         System.out.println("GAME: "+gameMovementID+" PLAYER: "+playerMovementID+" MOVE: "+"X: "+x+" Y: "+y);
                         Game game = findGame(gameMovementID);
+                        System.out.println("FOUND"+game.getGameID());
                         if(game.move(x, y, playerMovementID)){
                             System.out.println("MOVE MADE");
                             send(gameMovementID+","+playerMovementID+","+x+","+y+","+game.getGameOver(), "229.255.255.250",6745);
@@ -160,8 +161,8 @@ public class Server extends Thread{
     /**
      * Sends information to the clients
       * @param sendString what information to send
-     * @param group
-     * @param port
+     * @param group to what IP you want to sent your string
+     * @param port to what port you want to send your string
      */
     public void send(String sendString, String group, int port){
         try {

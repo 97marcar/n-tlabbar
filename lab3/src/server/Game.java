@@ -11,7 +11,6 @@ public class Game {
     private int gameID;
     private int player1 = -1;
     private int player2 = -1;
-    private boolean gameInSession = false;
     private int[][] grid = new int[3][3];
     private int inrow = 0;
     private int gameOver = 0;
@@ -55,26 +54,23 @@ public class Game {
     public boolean move(int x, int y, int playerID){
         System.out.println("CURRENT PLAYERS TURN: "+playersTurn);
         System.out.println("CURRENT PLAYER: "+playerID);
-        if(gameInSession){
-            if(playersTurn == playerID){
-                if(grid[x][y] == -1){
-                    grid[x][y] = playerID;
-                    checkWin(playerID);
-                    playersTurn = (playersTurn==player1) ?  player2 : player1;
-                    System.out.println("NEW PLAYERS TURN:"+playersTurn);
-                    return (true);
-                }else{
-                    return (false);
-                }
-            }else {
+        if(playersTurn == playerID){
+            if(grid[x][y] == -1){
+                grid[x][y] = playerID;
+                checkWin(playerID);
+                playersTurn = (playersTurn==player1) ?  player2 : player1;
+                System.out.println("NEW PLAYERS TURN:"+playersTurn);
+                return (true);
+            }else{
                 return (false);
             }
-        }else{
+        }else {
             return (false);
         }
-
-
     }
+
+
+
 
     /**
      * Sets a connected player to the available spot
@@ -112,12 +108,12 @@ public class Game {
 
     /**
      * checks if there is an available spot
-     * @return
+     * @return the alternate state of the availableSpot
      */
     public boolean availableSpot(){
-        gameInSession = (player1 == -1 ^ player2 == -1);
-        if(gameInSession) clearGrid();
-        return(!gameInSession);
+        boolean availableSpot  = (player1 == -1 ^ player2 == -1);
+        if(availableSpot) clearGrid();
+        return(!availableSpot);
     }
 
 
