@@ -4,8 +4,7 @@ import com.labb2.controller.Control;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.Observable;
-import java.util.Observer;
+
 
 /**
  * This class creates a Graphical user interface for a Weather application

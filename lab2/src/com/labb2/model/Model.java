@@ -24,6 +24,10 @@ import java.util.Date;
  */
 public class Model {
     private Control control;
+    private String xmlFile = "";
+    private String lon;
+    private String lat;
+    private int currentHour;
 
     /**
      * Set the controller that you want to control the Model
@@ -42,25 +46,30 @@ public class Model {
      * @throws Exception Throws an exception if the URL cannot be found
      */
     public void getWeather(int city, int h)throws Exception{
-
         String[] latandlon = getLatLon(city);
-        URL weather = new URL("http://api.met.no/weatherapi/locationforecast/1.9/?lat="+latandlon[0]+";lon="+latandlon[1]);
-        URLConnection con = weather.openConnection();
-        BufferedReader in = new BufferedReader(new InputStreamReader((con.getInputStream())));
-        String currentLine;
-        StringBuilder yr = new StringBuilder();
+        Boolean newRun = false;
+        DateFormat hourFormat = new SimpleDateFormat("HH");
+        Date date = new Date();
+        int newCurrentHour = Integer.parseInt(hourFormat.format(date));
 
-        while ((currentLine = in.readLine()) != null){
-            yr.append(currentLine);
+        if(!(newCurrentHour == currentHour)){
+            currentHour = newCurrentHour;
+            newRun = true;
         }
 
-        InputSource inputSource = new InputSource(new StringReader(yr.toString()));
+        if (!(latandlon[0].equals(lat) && latandlon[1].equals(lon))){
+            lat = latandlon[0];
+            lon = latandlon[1];
+            newRun = true;
+        }
+        if ((xmlFile.equals("")) || newRun){
+            getHTML();
+        }
+        InputSource inputSource = new InputSource(new StringReader(xmlFile));
         DOMParser domParser = new DOMParser();
         domParser.parse(inputSource);
         Document document = domParser.getDocument();
-        DateFormat hourFormat = new SimpleDateFormat("HH");
-        Date date = new Date();
-        int currentHour = Integer.parseInt(hourFormat.format(date));
+
 
         int index;
         if ((h+1) >= currentHour){
@@ -72,17 +81,33 @@ public class Model {
         Node node = nodeList.item(index);
         NamedNodeMap namedNodeMap = node.getAttributes();
         String temperature = namedNodeMap.getNamedItem("value").getFirstChild().getTextContent();
-        in.close();
+
 
         control.setWeatherLabel(temperature);
 
     }
+    private void getHTML() throws IOException {
+
+        URL weather = new URL("http://api.met.no/weatherapi/locationforecast/1.9/?lat="+lat+";lon="+lon);
+        URLConnection con = weather.openConnection();
+        BufferedReader in = new BufferedReader(new InputStreamReader((con.getInputStream())));
+        String currentLine;
+        StringBuilder yr = new StringBuilder();
+
+        while ((currentLine = in.readLine()) != null){
+            yr.append(currentLine);
+        }
+        in.close();
+        xmlFile =  yr.toString();
+    }
+
+
 
     private String[] getLatLon(int city){
         //Collects the Latitude and Longitude of the chosen city and returns it in an Array.
         BufferedReader in = null;
         try {
-            in = new BufferedReader(new FileReader(new File("C:\\Users\\marcu\\Documents\\GitHub\\n-tlabbar\\lab2\\src\\com\\labb2\\model\\places.xml")));
+            in = new BufferedReader(new FileReader(new File("C:\\Users\\marcus\\Documents\\D0036D\\src\\com\\labb2\\model\\places.xml")));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -114,6 +139,5 @@ public class Model {
         String[] latandlon = {lat,lon};
         return latandlon;
     }
-
 
 }
