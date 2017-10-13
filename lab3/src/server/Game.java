@@ -14,7 +14,7 @@ public class Game {
     private int[][] grid = new int[3][3];
     private int inrow = 0;
     private int gameOver = 0;
-    private int playersTurn;
+    private int playersTurn = -1;
 
     /**
      * Creates a game and sets the first player that connects to player 1.

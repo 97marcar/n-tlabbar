@@ -138,7 +138,11 @@ public class Server extends Thread{
                         System.out.println("OTHER");
                     }
                 }catch (SocketException e){
-
+                    try {
+                        Server.sleep(5);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
                 }
                 catch (IOException e) {
                     e.printStackTrace();
